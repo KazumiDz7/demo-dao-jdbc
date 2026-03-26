@@ -18,17 +18,17 @@ import model.entities.Seller;
 
 public class SellerDaoJDBC implements SellerDao {
 
-	private Connection coon;
+	private Connection conn;
 
 	public SellerDaoJDBC(Connection conn) {
-		this.coon = conn;
+		this.conn = conn;
 	}
 
 	@Override
 	public void insert(Seller obj) {
 		PreparedStatement st = null;
 		try {
-			st = coon.prepareStatement(
+			st = conn.prepareStatement(
 					"INSERT INTO seller "
 					+ "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
 					+ "VALUES "
@@ -69,7 +69,7 @@ public class SellerDaoJDBC implements SellerDao {
 	public void update(Seller obj) {
 		PreparedStatement st = null;
 		try {
-			st = coon.prepareStatement(
+			st = conn.prepareStatement(
 					"UPDATE seller "
 					+ "SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? "
 					+ "WHERE Id = ?");
@@ -94,8 +94,20 @@ public class SellerDaoJDBC implements SellerDao {
 
 	@Override
 	public void deleteById(Integer id) {
-		// TODO Auto-generated method stub
-
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement("DELETE FROM seller WHERE id = ?");
+			
+			st.setInt(1, id);
+			
+			st.executeUpdate();
+		}
+		catch (SQLException e){
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeStatement(st);
+		}
 	}
 
 	@Override
@@ -104,7 +116,7 @@ public class SellerDaoJDBC implements SellerDao {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			st = coon.prepareStatement(
+			st = conn.prepareStatement(
 					"SELECT seller.*,department.Name as DepName " + "FROM seller INNER JOIN department "
 							+ "ON seller.DepartmentId = department.Id " + "WHERE seller.Id = ? ");
 
@@ -148,7 +160,7 @@ public class SellerDaoJDBC implements SellerDao {
 			PreparedStatement st = null;
 			ResultSet rs = null;
 			try {
-				st = coon.prepareStatement(
+				st = conn.prepareStatement(
 								"SELECT seller.*,department.Name as DepName "
 								+ "FROM seller INNER JOIN department "
 								+ "ON seller.DepartmentId = department.Id "
@@ -186,7 +198,7 @@ public class SellerDaoJDBC implements SellerDao {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			st = coon.prepareStatement(
+			st = conn.prepareStatement(
 					"SELECT seller.*,department.Name as DepName " + "FROM seller INNER JOIN department "
 							+ "ON seller.DepartmentId = department.Id " + "WHERE DepartmentId = ? " + "ORDER BY Name");
 
